@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Project Overview
+## 1. Project Overviews
 
 **AttendEase** (formerly RBEAS — Role-Based Employee Attendance System) is a full-stack, production-ready HR management platform designed for small to mid-sized organizations (10–100 employees).
 
