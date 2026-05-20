@@ -73,7 +73,7 @@
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tech Stacks
 
 | Layer | Technology | Why |
 |-------|-----------|-----|
