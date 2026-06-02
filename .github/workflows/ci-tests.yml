@@ -2,30 +2,30 @@ name: CI – Test Suite
 
 on:
   push:
-    branches: [main]
+    branches: [main] #trigger / pemicu
   pull_request:
-    branches: [main]
+    branches: [main] #trigger / pemicu
 
 jobs:
-  test:
-    name: Unit Tests
-    runs-on: ubuntu-latest
+  test: #nama job
+    name: Unit Tests #nama job
+    runs-on: ubuntu-latest #mesin untuk menjalankan job ini
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    steps: #langkah-langkah
+      - name: Checkout code #checkout code
+        uses: actions/checkout@v4 #mengambil kode dari github repo
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node.js #setup node js
+        uses: actions/setup-node@v4 #mengatur node js
         with:
-          node-version: 20
-          cache: npm
+          node-version: 20 #versi node js yang digunakan
+          cache: npm #menggunakan npm untuk package
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies #install dependencies
+        run: npm ci #memeriksa apakah ada dependencies yang perlu di install
 
-      - name: Run tests
-        run: npm run test:ci
+      - name: Run tests #menjalankan unit test
+        run: npm run test:ci #menjalankan unit test
         env:
-          JWT_SECRET: ci-test-secret-key
-          JWT_EXPIRES_IN: 1h
+          JWT_SECRET: ci-test-secret-key #memberikan key untuk decrypt
+          JWT_EXPIRES_IN: 1h #memberikan token expire

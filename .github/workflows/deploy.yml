@@ -2,29 +2,29 @@ name: Build & Deploy to Cloud Run
 
 on:
   push:
-    branches: [main]
+    branches: [main] #trigger / pemicu
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    runs-on: ubuntu-latest #mesin untuk menjalankan job ini
+    steps: #langkah-langkah
+      - uses: actions/checkout@v4 #mengambil kode dari github repo
 
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v2 #mengatur google github actions
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@v2 #setup gcloud
 
-      - run: gcloud auth configure-docker asia-southeast2-docker.pkg.dev
+      - run: gcloud auth configure-docker asia-southeast2-docker.pkg.dev #mengkonfigurasi docker
 
-      - name: Build & Push Image
-        run: |
+      - name: Build & Push Image #membangun image dan push
+        run: | #menjalankan docker build dan docker push
           IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/pso"
           docker build -t $IMAGE:$GITHUB_SHA .
           docker push $IMAGE:$GITHUB_SHA
 
-      - name: Deploy ke Cloud Run
+      - name: Deploy ke Cloud Run #memdeploy ke cloud run
         run: |
           IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/pso"
           gcloud run deploy my-app-service \
