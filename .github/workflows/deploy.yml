@@ -34,4 +34,4 @@ jobs:
             --allow-unauthenticated \
             --port=8080 \
             --memory=512Mi \
-            --set-env-vars="^|^MONGODB_URL=${{ secrets.MONGODB_URL }}"
+            --set-env-vars="^|^MONGODB_URI=${{ secrets.MONGODB_URI }}^|^JWT_SECRET=${{ secrets.JWT_SECRET }}^|^JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}"
