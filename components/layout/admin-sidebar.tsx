@@ -27,6 +27,7 @@ const navItems = [
   { name: "Employees", href: "/admin/employees", icon: Users },
   { name: "Attendance", href: "/admin/attendance", icon: ClipboardCheck },
   { name: "Leaves", href: "/admin/leaves", icon: Calendar },
+  { name: "Holidays", href: "/admin/holidays", icon: Calendar },
   { name: "Payroll", href: "/admin/payroll", icon: DollarSign },
   { name: "Shifts", href: "/admin/shifts", icon: Clock },
   { name: "Departments", href: "/admin/departments", icon: Building2 },

@@ -7,6 +7,7 @@ import { NeuStatCard } from "@/components/ui/neu-stat-card";
 import { NeuBadge } from "@/components/ui/neu-badge";
 import { cn } from "@/lib/utils";
 import CheckInOutPanel from "@/components/attendance/check-in-out-panel";
+import DashboardCalendar from "@/components/DashboardCalendar";
 import { ChipLoader } from "@/components/ui/chip-loader";
 import { List2, ListItem } from "@/components/ui/list-2";
 import { UserIcon, MapPin, Clock as ClockIcon } from "lucide-react";
@@ -189,6 +190,9 @@ export default function EmployeeDashboard() {
 
       {/* Check-in/out Panel */}
       <CheckInOutPanel />
+
+      {/* Holiday Calendar */}
+      <DashboardCalendar />
 
       {/* Recent Attendance History */}
       <NeuCard>
