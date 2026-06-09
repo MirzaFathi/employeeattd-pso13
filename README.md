@@ -15,32 +15,33 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB_Atlas-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT_Auth-black?style=for-the-badge&logo=JSON%20web%20tokens)
-![Vercel](https://img.shields.io/badge/Deployed_on_Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 <br/>
 
 > **AttendEase** is a complete, production-ready HR management platform built for small to mid-sized teams. From GPS-based check-ins and leave management to payroll generation and role-based dashboards — everything your team needs in one place.
-
-🌐 **Live Demo:** [employee-attendance-pi.vercel.app](https://employee-attendance-pi.vercel.app)
-
 </div>
 
+🌐 **Project ini telah dikembangkan kembali oleh Group 13 PSO C dengan detail sebagai berikut:**
+Tentu, ini lanjutan dari rangkuman progres proyek Anda berdasarkan dokumen yang diberikan:
+
+**Project ini telah dikembangkan kembali oleh Group 13 PSO C dengan detail sebagai berikut:**
+
+* **Working CI/CD Pipeline:** Ketika terjadi perubahan terhadap kode pada cabang utama (*branch main*), robot GitHub Actions akan secara otomatis terpicu untuk menjalankan siklus DevOps. Siklus ini diatur menggunakan file `deploy.yml` untuk menjalankan tahap pengujian secara otomatis, dan untuk melakukan *deployment* langsung menuju server produksi di GCP Cloud Run.
+
+* **Automated Unit Testing:** Sistem telah dilengkapi dengan pengujian terotomatisasi menggunakan Jest dan TypeScript. Pengujian difokuskan pada dua modul utama:
+    * **Uji Keamanan (Auth & RBAC):** Memvalidasi penerbitan token JWT, enkripsi *password* menggunakan *bcrypt*, mencegah eskalasi hak akses secara ilegal, dan memastikan penolakan terhadap token yang tidak sah.
+    * **Uji Logika Bisnis (Payroll Engine):** Memastikan akurasi perhitungan gaji harian, kalkulasi pemotongan akibat absensi atau cuti, kalkulasi kehadiran setengah hari, dan perhitungan hasil akhir gaji bersih beserta bonusnya. Terdapat juga validasi aturan spesifik seperti 3 kali keterlambatan yang dihitung sebagai 1 hari absen.
+
+* **Database Connectivity:** Penyimpanan data sudah bermigrasi dari *local* dan kini sepenuhnya terhubung dengan *cloud* MongoDB Atlas. Migrasi ini memungkinkan aplikasi AttendEase untuk mengakses data pengguna secara *real-time*.
+
+* **Keamanan Repositori & Kredensial:** Menerapkan fitur GitHub Secrets untuk mengenkripsi dan menyembunyikan data kredensial sensitif agar tidak bocor di repositori publik. Kredensial ini meliputi kunci akses GCP (`GCP_CREDENTIALS`, `GCP_PROJECT_ID`, `GCP_REGION`), jalur *registry* (`ARTIFACT_REPO`), tautan database (`MONGODB_URL`), serta kunci keamanan login (`JWT_SECRET` dan `JWT_EXPIRES_IN`).
+
+* **Infrastruktur & Container Registry:** Menggunakan Artifact Registry GCP sebagai tempat penyimpanan *Docker Image* yang terenkripsi sebelum aplikasi dirilis secara *live*. Pengiriman *Docker Image* dilakukan secara otomatis hanya jika kode telah berhasil melewati pengujian.
+
+* **Pengembangan Fitur Tambahan:** Telah menambahkan fitur menu *Calendar* yang ditujukan untuk pengguna *employee* dan *admin* yang menampilkan calendar berseta tanggal libur (kalender terhubung dengan API Indonesia). Menambahkan role finance yang bekerja khusus pada payroll employee. Serta Menambahkan fitur terkait finance yang belum ada yaitu Add Salary, Edit Salary, Add Bonus, dan Print Payslip.
 ---
 
-## 🔑 Demo Credentials
-
-> Try the live demo instantly — no signup required.
-
-| Role | Email | Password |
-|------|-------|----------|
-| 👨‍💼 **Admin** | `admin@attendance.com` | `admin123` |
-| 👨‍💻 **Employee** | Register at `/register` | — |
-
-> **Note:** The very first registered user is automatically promoted to **Admin**. All subsequent registrations become employees and must be managed by the admin.
-
----
-
-## ✨ Feature Overview
+## ✨ Main Feature Overview
 
 ### 👨‍💼 Admin Portal
 | Feature | Details |
@@ -50,14 +51,12 @@
 | **Leave Management** | Approve or reject with comments; auto leave balance deduction; attendance sync on approval |
 | **Payroll Engine** | Monthly bulk generation using a formula-based system; edit bonuses; finalize & lock; email payslips |
 | **Reports & Analytics** | Today's stats, monthly bar charts, department pie charts, 6-month trend line, top performers |
-| **Audit Trail** | Every admin action logged with old/new values, IP address, and timestamp |
 | **Department & Shift Mgmt** | Create departments and work shifts with late-arrival thresholds |
 | **Settings** | Configure geo-fence radius, office coordinates, and SMTP email |
 
 ### 👨‍💻 Employee Portal
 | Feature | Details |
 |---------|---------|
-| **GPS Check-in / Check-out** | Location validated via Haversine formula; strict or lenient geo-fence mode |
 | **Attendance History** | Calendar view + monthly attendance table; export personal records |
 | **Leave Application** | Apply for Sick, Casual, Annual, or Unpaid leave; track balance and status |
 | **Payslip** | View monthly salary breakdown; download as PDF |
@@ -73,7 +72,7 @@
 
 ---
 
-## 🛠 Tech Stacks
+## 🛠 Main Tech Stacks
 
 | Layer | Technology | Why |
 |-------|-----------|-----|
@@ -81,308 +80,367 @@
 | Language | TypeScript 5 (strict) | Catch errors at build time, not runtime |
 | Database | MongoDB Atlas + Mongoose v9 | Flexible schema, serverless-friendly |
 | Auth | JWT + bcryptjs | Stateless, scalable, secure cookies |
+| Deployment | Google Cloud Platform | Configured by Github Actions and Secrets |
 | Styling | Tailwind CSS v4 | Direct CSS imports, zero config |
+
+---
+## 🛠 Another Tech Stacks
+
+| Layer | Technology | Why |
+|-------|-----------|-----|
 | Animation | GSAP + framer-motion | Cinematic scroll reveals + micro-animations |
 | UI Effects | Magic cursor + Radar | Custom sparkle cursor, radar overview section |
 | Charts | Recharts | React-native, lightweight charting |
 | Export | SheetJS + jsPDF | Excel and PDF on client and server |
-| Email | Nodemailer | SMTP-based, no vendor lock-in |
 | Icons | Lucide React | Consistent, tree-shakeable icon set |
-| Deployment | Vercel | Zero-config CI/CD from GitHub |
-
----
-
-## 🏗 System Architecture
-
-```mermaid
-graph TB
-    subgraph Client["🖥️ Browser / Mobile"]
-        Home["Landing Page"]
-        LoginPage["Login / Register"]
-        AdminUI["Admin Dashboard"]
-        EmpUI["Employee Panel"]
-    end
-
-    subgraph Middleware["🔐 Next.js Middleware"]
-        JWT["JWT Token Verify"]
-        RoleCheck["Role Check\n(admin / employee)"]
-    end
-
-    subgraph API["⚙️ API Routes (Next.js)"]
-        AuthAPI["/api/auth/*"]
-        AttendAPI["/api/attendance/*"]
-        LeaveAPI["/api/leaves/*"]
-        PayrollAPI["/api/payroll/*"]
-        ReportAPI["/api/reports/*"]
-        ExportAPI["/api/export/*"]
-        NotifAPI["/api/notifications/*"]
-        AuditAPI["/api/audit-logs/*"]
-    end
-
-    subgraph DB["🗄️ MongoDB Atlas"]
-        Users[("Users")]
-        Attendance[("Attendance")]
-        Leaves[("Leaves")]
-        Payroll[("Payroll")]
-        Notifications[("Notifications")]
-        AuditLogs[("Audit Logs")]
-        Departments[("Departments")]
-        Shifts[("Shifts")]
-    end
-
-    subgraph External["📦 External Services"]
-        SMTP["SMTP Email"]
-        GPS["Browser GPS API"]
-    end
-
-    Home --> LoginPage
-    LoginPage --> AuthAPI
-    AuthAPI -->|httpOnly JWT cookie| JWT
-    JWT --> RoleCheck
-    RoleCheck -->|admin| AdminUI
-    RoleCheck -->|employee| EmpUI
-
-    AdminUI --> AttendAPI & LeaveAPI & PayrollAPI & ReportAPI & ExportAPI & AuditAPI
-    EmpUI --> AttendAPI & LeaveAPI & NotifAPI
-
-    AttendAPI <--> Attendance & Users
-    LeaveAPI <--> Leaves & Users
-    PayrollAPI <--> Payroll & Attendance
-    ReportAPI <--> Attendance & Departments
-    NotifAPI <--> Notifications
-    AuditAPI <--> AuditLogs
-    AuthAPI <--> Users
-
-    PayrollAPI -->|payslip email| SMTP
-    LeaveAPI -->|status email| SMTP
-    AttendAPI -->|validate location| GPS
-```
-
----
-
-## 🗄 Database Schema
-
-```mermaid
-erDiagram
-    USER {
-        ObjectId _id PK
-        string name
-        string email
-        string password
-        string role
-        string employeeId
-        ObjectId department FK
-        ObjectId shift FK
-        number salary
-        date joiningDate
-        object leaveBalance
-        boolean isActive
-    }
-
-    DEPARTMENT {
-        ObjectId _id PK
-        string name
-        string description
-        ObjectId managerId FK
-        boolean isActive
-    }
-
-    SHIFT {
-        ObjectId _id PK
-        string name
-        string startTime
-        string endTime
-        number workingHours
-        number lateThresholdMinutes
-    }
-
-    ATTENDANCE {
-        ObjectId _id PK
-        ObjectId userId FK
-        date date
-        date checkIn
-        date checkOut
-        number workingMinutes
-        string status
-        string notes
-        object location
-        boolean outOfOffice
-        ObjectId overriddenBy FK
-    }
-
-    LEAVE {
-        ObjectId _id PK
-        ObjectId userId FK
-        string leaveType
-        date startDate
-        date endDate
-        number totalDays
-        string reason
-        string status
-        ObjectId approvedBy FK
-        string adminComment
-    }
-
-    PAYROLL {
-        ObjectId _id PK
-        ObjectId userId FK
-        number month
-        number year
-        number basicSalary
-        number presentDays
-        number absentDays
-        number lateDays
-        number netSalary
-        number bonuses
-        string status
-    }
-
-    NOTIFICATION {
-        ObjectId _id PK
-        ObjectId userId FK
-        string title
-        string message
-        string type
-        boolean isRead
-        string link
-    }
-
-    AUDITLOG {
-        ObjectId _id PK
-        ObjectId performedBy FK
-        string action
-        string targetModel
-        object oldValues
-        object newValues
-        string ipAddress
-        date timestamp
-    }
-
-    USER ||--o{ ATTENDANCE : "marks"
-    USER ||--o{ LEAVE : "applies"
-    USER ||--o{ PAYROLL : "receives"
-    USER ||--o{ NOTIFICATION : "gets"
-    USER }o--|| DEPARTMENT : "belongs to"
-    USER }o--|| SHIFT : "assigned"
-    USER ||--o{ AUDITLOG : "performs"
-```
-
----
-
-## 💸 Payroll Calculation Logic
-
-```
-perDay          = basicSalary ÷ 26
-absentDeduction = absentDays × perDay
-lateDeduction   = ⌊lateDays ÷ 3⌋ × perDay
-unpaidDeduction = unpaidLeaveDays × perDay
-netSalary       = basicSalary - absentDeduction - lateDeduction - unpaidDeduction + bonuses
-```
-
 ---
 
 ## 📁 Project Structure
 
 ```
-attendance/
-│
+employeeattd-pso13/
+├── __tests__/
+│   └── unit/
+│       ├── auth/
+│       │   └── auth-rbac.test.ts
+│       ├── holidays/
+│       │   └── holidays.test.ts
+│       └── payroll/
+│           └── payroll-engine.test.ts
+├── .agents/
+│   └── skills/
+│       ├── find-skills/
+│       │   └── SKILL.md
+│       ├── frontend-design/
+│       │   ├── LICENSE.txt
+│       │   └── SKILL.md
+│       └── skill-creator/
+│           ├── agents/
+│           │   ├── analyzer.md
+│           │   ├── comparator.md
+│           │   └── grader.md
+│           ├── assets/
+│           │   └── eval_review.html
+│           ├── eval-viewer/
+│           │   ├── generate_review.py
+│           │   └── viewer.html
+│           ├── LICENSE.txt
+│           ├── references/
+│           │   └── schemas.md
+│           ├── scripts/
+│           │   ├── __init__.py
+│           │   ├── aggregate_benchmark.py
+│           │   ├── generate_report.py
+│           │   ├── improve_description.py
+│           │   ├── package_skill.py
+│           │   ├── quick_validate.py
+│           │   ├── run_eval.py
+│           │   ├── run_loop.py
+│           │   └── utils.py
+│           └── SKILL.md
+├── .dockerignore
+├── .env.example
+├── .env.local
+├── .github/
+│   └── workflows/
+│       └── ci-deploy.yml
+├── .gitignore
+├── .qoder/
+│   └── repowiki/
+│       └── en/
+│           ├── content/
+│           │   ├── API Reference/
+│           │   │   ├── API Reference.md
+│           │   │   ├── Attendance Endpoints.md
+│           │   │   ├── Authentication Endpoints.md
+│           │   │   └── User Management Endpoints.md
+│           │   ├── Architecture Overview/
+│           │   │   ├── Architecture Overview.md
+│           │   │   ├── Authentication Middleware.md
+│           │   │   ├── Database Layer.md
+│           │   │   ├── Routing Architecture.md
+│           │   │   └── Security Patterns.md
+│           │   ├── Attendance Management/
+│           │   │   ├── Attendance Management.md
+│           │   │   ├── Attendance Statistics and Reporting.md
+│           │   │   ├── Check-in and Check-out Operations.md
+│           │   │   ├── Data Model and Schema.md
+│           │   │   └── UI Components and Interfaces.md
+│           │   ├── Authentication System/
+│           │   │   ├── Authentication Overview.md
+│           │   │   ├── Authentication System.md
+│           │   │   ├── Login and Logout Flow.md
+│           │   │   ├── Middleware and Route Protection.md
+│           │   │   └── Registration and Profile Management.md
+│           │   ├── Configuration & Deployment.md
+│           │   ├── Getting Started.md
+│           │   ├── Skill System/
+│           │   │   ├── Creative & Design Skills.md
+│           │   │   ├── Document Processing Skills.md
+│           │   │   ├── Enterprise Communication Skills.md
+│           │   │   ├── Skill Creator Tools.md
+│           │   │   ├── Skill Specification.md
+│           │   │   ├── Skill System.md
+│           │   │   ├── Theme Factory System.md
+│           │   │   ├── UI-UX Pro Max Skill.md
+│           │   │   └── Web Artifacts Builder.md
+│           │   ├── Troubleshooting & FAQ.md
+│           │   ├── UI Components/
+│           │   │   ├── Flow Field Background.md
+│           │   │   ├── NeuButton Component.md
+│           │   │   ├── NeuCard Component.md
+│           │   │   ├── NeuDialog Component.md
+│           │   │   ├── NeuInput Component.md
+│           │   │   ├── NeuSelect Component.md
+│           │   │   ├── NeuTable Component.md
+│           │   │   ├── NeuToast Component.md
+│           │   │   └── UI Components.md
+│           │   └── User Management.md
+│           └── meta/
+│               └── repowiki-metadata.json
+├── .windsurf/
+│   └── plans/
+│       └── footer-integration-702af8.md
+├── AGENTS.md
 ├── app/
 │   ├── (auth)/
-│   │   ├── login/                 # Login page with Back to Home
-│   │   └── register/              # Register — first user auto becomes Admin
-│   │
+│   │   ├── layout.tsx
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   └── register/
+│   │       └── page.tsx
 │   ├── (dashboard)/
 │   │   ├── admin/
-│   │   │   ├── page.tsx           # Dashboard — stats, charts, overlay loader
-│   │   │   ├── employees/         # CRUD + bulk CSV import
-│   │   │   ├── attendance/        # View + override + export (mobile responsive)
-│   │   │   ├── leaves/            # Approve/reject with overlay ChipLoader
-│   │   │   ├── payroll/           # Generate + finalize (mobile responsive)
-│   │   │   ├── departments/       # Manage departments
-│   │   │   ├── shifts/            # Manage shifts
-│   │   │   ├── reports/           # Charts + top performers
-│   │   │   ├── audit-logs/        # Full audit trail with filters
-│   │   │   └── settings/          # Geo-fence + SMTP config
-│   │   │
-│   │   └── employee/
-│   │       ├── page.tsx           # Dashboard — check-in, stats, collapsible sidebar
-│   │       ├── attendance/        # Calendar view + monthly history
-│   │       ├── leaves/            # Apply + track + cancel
-│   │       ├── payslip/           # View + PDF download
-│   │       └── notifications/     # All notifications
-│   │
+│   │   │   ├── attendance/
+│   │   │   │   └── page.tsx
+│   │   │   ├── audit-logs/
+│   │   │   │   └── page.tsx
+│   │   │   ├── departments/
+│   │   │   │   └── page.tsx
+│   │   │   ├── employees/
+│   │   │   │   └── page.tsx
+│   │   │   ├── holidays/
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── leaves/
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── payroll/
+│   │   │   │   └── page.tsx
+│   │   │   ├── reports/
+│   │   │   │   └── page.tsx
+│   │   │   ├── settings/
+│   │   │   │   └── page.tsx
+│   │   │   └── shifts/
+│   │   │       └── page.tsx
+│   │   ├── dashboard/
+│   │   │   └── page.tsx
+│   │   ├── employee/
+│   │   │   ├── attendance/
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── leaves/
+│   │   │   │   └── page.tsx
+│   │   │   ├── notifications/
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── payslip/
+│   │   │       └── page.tsx
+│   │   └── layout.tsx
 │   ├── api/
-│   │   ├── auth/                  # login, register, logout, me
-│   │   ├── users/                 # CRUD + bulk import
-│   │   ├── departments/           # CRUD
-│   │   ├── shifts/                # CRUD
-│   │   ├── attendance/            # checkin, checkout, override, import
-│   │   ├── leaves/                # apply, approve, reject, cancel
-│   │   ├── payroll/               # generate, finalize, update bonuses
-│   │   ├── reports/               # monthly, dept, trend, top-performers
-│   │   ├── export/                # attendance, employees, payslip PDF
-│   │   ├── notifications/         # fetch, mark-read, mark-all-read
-│   │   ├── audit-logs/            # filtered log viewer
-│   │   └── settings/              # geo-location config
-│   │
-│   ├── page.tsx                   # Landing page — hero + features + radar + cinematic
-│   ├── layout.tsx                 # Root layout — MagicCursor, AnimatedBackground
-│   └── globals.css                # Neumorphic tokens + GSAP keyframes
-│
+│   │   ├── admin/
+│   │   │   └── test-email/
+│   │   │       └── route.ts
+│   │   ├── attendance/
+│   │   │   ├── [id]/
+│   │   │   │   └── route.ts
+│   │   │   ├── check-in/
+│   │   │   │   └── route.ts
+│   │   │   ├── check-out/
+│   │   │   │   └── route.ts
+│   │   │   ├── import/
+│   │   │   │   └── route.ts
+│   │   │   ├── route.ts
+│   │   │   ├── stats/
+│   │   │   │   └── route.ts
+│   │   │   └── today-summary/
+│   │   │       └── route.ts
+│   │   ├── audit-logs/
+│   │   │   └── route.ts
+│   │   ├── auth/
+│   │   │   ├── login/
+│   │   │   │   └── route.ts
+│   │   │   ├── logout/
+│   │   │   │   └── route.ts
+│   │   │   ├── me/
+│   │   │   │   └── route.ts
+│   │   │   ├── register/
+│   │   │   │   └── route.ts
+│   │   │   └── seed/
+│   │   │       └── route.ts
+│   │   ├── departments/
+│   │   │   ├── [id]/
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── employees/
+│   │   │   ├── import/
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── export/
+│   │   │   ├── attendance/
+│   │   │   │   └── route.ts
+│   │   │   ├── employees/
+│   │   │   │   └── route.ts
+│   │   │   └── payslip/
+│   │   │       └── [userId]/
+│   │   │           └── route.ts
+│   │   ├── holidays/
+│   │   │   └── route.ts
+│   │   ├── leaves/
+│   │   │   ├── [id]/
+│   │   │   │   ├── approve/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── reject/
+│   │   │   │       └── route.ts
+│   │   │   ├── all/
+│   │   │   │   └── route.ts
+│   │   │   ├── apply/
+│   │   │   │   └── route.ts
+│   │   │   └── my/
+│   │   │       └── route.ts
+│   │   ├── notifications/
+│   │   │   ├── [id]/
+│   │   │   │   └── read/
+│   │   │   │       └── route.ts
+│   │   │   └── route.ts
+│   │   ├── payroll/
+│   │   │   ├── [id]/
+│   │   │   │   └── route.ts
+│   │   │   ├── my/
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── reports/
+│   │   │   ├── department/
+│   │   │   │   └── route.ts
+│   │   │   ├── employee-stats/
+│   │   │   │   └── route.ts
+│   │   │   ├── monthly/
+│   │   │   │   └── route.ts
+│   │   │   ├── top-performers/
+│   │   │   │   └── route.ts
+│   │   │   └── trend/
+│   │   │       └── route.ts
+│   │   ├── settings/
+│   │   │   └── location/
+│   │   │       └── route.ts
+│   │   └── shifts/
+│   │       ├── [id]/
+│   │       │   └── route.ts
+│   │       └── route.ts
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── CLAUDE.md
 ├── components/
-│   ├── ui/
-│   │   ├── neu-card.tsx           # Neumorphic card system
-│   │   ├── neu-button.tsx         # Neumorphic buttons
-│   │   ├── neu-badge.tsx          # Status badges
-│   │   ├── neu-toast.tsx          # Toast notification system
-│   │   ├── chip-loader.tsx        # Branded circuit-board SVG loader
-│   │   ├── magic-cursor.tsx       # Global sparkle cursor effect
-│   │   ├── magic-cursor-client.tsx# Client wrapper for SSR compatibility
-│   │   ├── radar-effect.tsx       # Radar sweep + floating icons
-│   │   ├── cinematic-hero.tsx     # GSAP scroll-pinned cinematic hero
-│   │   ├── animated-background.tsx# Neural particle background
-│   │   ├── flow-field-background.tsx
-│   │   └── empty-state.tsx
-│   │
-│   ├── home/
-│   │   └── project-radar-section.tsx  # AttendEase feature overview with radar
-│   │
-│   ├── layout/
-│   │   ├── admin-sidebar.tsx      # Collapsible admin sidebar
-│   │   ├── employee-sidebar.tsx   # Collapsible employee sidebar
-│   │   └── header.tsx             # Top header with notification bell
-│   │
 │   ├── attendance/
-│   │   └── attendance-table.tsx   # Responsive attendance table
-│   │
-│   └── charts/                    # Recharts wrappers (Bar, Pie, Line)
-│
-├── models/
-│   ├── User.ts
-│   ├── Attendance.ts
-│   ├── Department.ts
-│   ├── Shift.ts
-│   ├── Leave.ts
-│   ├── Payroll.ts
-│   ├── Notification.ts
-│   └── AuditLog.ts
-│
+│   │   ├── attendance-export.tsx
+│   │   ├── attendance-filters.tsx
+│   │   ├── attendance-stats.tsx
+│   │   ├── attendance-table.tsx
+│   │   └── check-in-out-panel.tsx
+│   ├── auth/
+│   │   ├── login-form.tsx
+│   │   └── register-form.tsx
+│   ├── charts/
+│   │   ├── attendance-bar-chart.tsx
+│   │   ├── attendance-trend-chart.tsx
+│   │   └── department-pie-chart.tsx
+│   ├── DashboardCalendar.tsx
+│   ├── home/
+│   │   ├── particle-intro-section.tsx
+│   │   └── project-radar-section.tsx
+│   ├── layout/
+│   │   ├── admin-sidebar.tsx
+│   │   ├── employee-sidebar.tsx
+│   │   ├── footer.tsx
+│   │   ├── header.tsx
+│   │   ├── navbar.tsx
+│   │   └── notification-bell.tsx
+│   └── ui/
+│       ├── animated-background.tsx
+│       ├── auth-fuse.tsx
+│       ├── bento-grid.tsx
+│       ├── button.tsx
+│       ├── chip-loader.tsx
+│       ├── empty-state.tsx
+│       ├── flickering-footer.tsx
+│       ├── flow-field-background.tsx
+│       ├── glow-button.tsx
+│       ├── list-2.tsx
+│       ├── magic-cursor-client.tsx
+│       ├── magic-cursor.tsx
+│       ├── neu-avatar.tsx
+│       ├── neu-badge.tsx
+│       ├── neu-button.tsx
+│       ├── neu-card.tsx
+│       ├── neu-dialog.tsx
+│       ├── neu-input.tsx
+│       ├── neu-select.tsx
+│       ├── neu-stat-card.tsx
+│       ├── neu-table.tsx
+│       ├── neu-toast.tsx
+│       ├── particle-text-effect.tsx
+│       ├── radar-effect.tsx
+│       ├── scroll-to-top.tsx
+│       ├── separator.tsx
+│       ├── spinner.tsx
+│       └── tube-light-navbar.tsx
+├── Dockerfile
+├── eslint.config.mjs
+├── jest.config.ts
 ├── lib/
-│   ├── db.ts                      # MongoDB connection with cache
-│   ├── auth.ts                    # JWT sign + verify (full payload)
-│   ├── middleware-helpers.ts       # getAuthUser, requireAuth, requireAdmin
-│   ├── email.ts                   # Nodemailer SMTP setup
-│   ├── geolocation.ts             # Haversine distance formula
-│   ├── auditLogger.ts             # Audit log helper
-│   └── SidebarContext.tsx         # Sidebar collapse state (localStorage)
-│
-├── types/
-│   └── index.ts                   # All TypeScript interfaces & types
-│
-├── middleware.ts                   # Route protection + role-based redirect
+│   ├── auth.ts
+│   ├── db.ts
+│   ├── email.ts
+│   ├── geolocation.ts
+│   ├── holidays.ts
+│   ├── middleware-helpers.ts
+│   ├── notifications.ts
+│   ├── SidebarContext.tsx
+│   └── utils.ts
+├── models/
+│   ├── Attendance.ts
+│   ├── AuditLog.ts
+│   ├── Department.ts
+│   ├── Leave.ts
+│   ├── Notification.ts
+│   ├── Payroll.ts
+│   ├── Shift.ts
+│   └── User.ts
 ├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── PROJECT_DETAILS.md
+├── proxy.ts
+├── public/
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── logo.png
+│   └── window.svg
+├── README.md
+├── scripts/
+│   ├── diagnostic-db.ts
+│   ├── fix-windows-dns.ps1
+│   └── test-db.ts
+├── SKILL.md
+├── skills/
+├── skills-lock.json
+├── tes.md
 ├── tsconfig.json
-└── .env.local                     # Environment variables (never commit)
+├── types/
+│   └── index.ts
+└── ui-ux-pro-max-skill/
 ```
 
 ---
@@ -446,34 +504,6 @@ Navigate to `/register` — the **first user automatically becomes Admin**. Afte
 
 ---
 
-## 📡 API Reference
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `POST` | `/api/auth/login` | Public | Login — sets `httpOnly` JWT cookie |
-| `POST` | `/api/auth/register` | Public | First user only — auto Admin |
-| `GET` | `/api/auth/me` | Any | Get current user info |
-| `POST` | `/api/auth/logout` | Any | Clear JWT cookie |
-| `GET` | `/api/users` | Admin | List all employees |
-| `POST` | `/api/users` | Admin | Create new employee |
-| `PUT` | `/api/users/[id]` | Admin | Update employee details |
-| `POST` | `/api/attendance/checkin` | Employee | GPS-validated check-in |
-| `POST` | `/api/attendance/checkout` | Employee | Check-out |
-| `PUT` | `/api/attendance/[id]` | Admin | Override attendance status |
-| `POST` | `/api/leaves/apply` | Employee | Submit leave request |
-| `PUT` | `/api/leaves/[id]/approve` | Admin | Approve leave |
-| `PUT` | `/api/leaves/[id]/reject` | Admin | Reject leave with comment |
-| `POST` | `/api/payroll` | Admin | Generate monthly payroll |
-| `PATCH` | `/api/payroll/[id]` | Admin | Finalize payroll record |
-| `GET` | `/api/reports/top-performers` | Admin | Top attendance performers |
-| `GET` | `/api/export/attendance` | Admin | Export attendance to Excel |
-| `GET` | `/api/export/payslip/[id]` | Admin | Download payslip PDF |
-| `GET` | `/api/audit-logs` | Admin | Paginated audit trail |
-| `GET` | `/api/notifications` | Any | Fetch notifications |
-| `PATCH` | `/api/notifications/[id]` | Any | Mark notification as read |
-
----
-
 ## 🧪 Development Commands
 
 ```bash
@@ -485,35 +515,10 @@ npm run lint     # ESLint check
 
 ---
 
-## 🎨 UI Design System
-
-AttendEase uses a custom **Neumorphic design system** built entirely with CSS variables:
-
-| Token | Purpose |
-|-------|---------|
-| `--neu-bg` | Page background (`#1a1a2e`) |
-| `--neu-surface` | Card surface |
-| `--neu-accent` | Primary accent (`#818cf8` — indigo) |
-| `--neu-shadow-dark` | Neumorphic dark shadow |
-| `--neu-shadow-light` | Neumorphic light shadow |
-| `--neu-text` | Primary text |
-| `--neu-text-secondary` | Secondary/muted text |
-
-**Animations:**
-- `ChipLoader` — circuit-board SVG animation for all loading states
-- `MagicCursor` — global indigo sparkle trail following the cursor
-- `GSAP ScrollTrigger` — cinematic 7-second scroll-pinned hero reveal
-- `framer-motion` — radar pulse + floating icon animations
-
----
-
 ## 🚀 Deployment
 
-AttendEase is deployed on **Vercel** with automatic deployments on every `git push` to `main`.
-
-**Environment variables** must be set in the Vercel dashboard under Project → Settings → Environment Variables.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Konete326/Employee-Attendance)
+AttendEase is deployed on Google Cloud Run with automatic deployments on every `git push` to `main`.
+https://my-app-service-298471478049.asia-southeast2.run.app/
 
 ---
 
@@ -522,13 +527,17 @@ AttendEase is deployed on **Vercel** with automatic deployments on every `git pu
 ## ✍️ Built By
 
 **Muhammad Sameer**  
-*Full-Stack Developer*
+*Original Full-Stack Developer*
 
+**Mirza Fathi Taufiqurrahman**
+*DevOps & Cloud Engineer*
+
+**Hafidz Putra Dermawan**
+*DevOps & Cloud Engineer*
 <br/>
 
 [![Email](https://img.shields.io/badge/Email-sameerdevexpert%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:sameerdevexpert@gmail.com)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sameer-akram-52662a28a/)
-[![Live Demo](https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://employee-attendance-pi.vercel.app)
 
 <br/>
 
