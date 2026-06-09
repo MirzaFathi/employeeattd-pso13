@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+
     // Sign JWT token
     const departmentName = user.department?.name || undefined;
     const token = generateToken(user._id.toString(), user.email, user.role, departmentName);
