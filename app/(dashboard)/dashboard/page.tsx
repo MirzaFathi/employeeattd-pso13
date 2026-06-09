@@ -17,6 +17,8 @@ export default function DashboardRedirect() {
         const data = await res.json();
         if (data.data?.role === "admin") {
           router.replace("/admin");
+        } else if (data.data?.role === "finance") {
+          router.replace("/admin/holidays");
         } else {
           router.replace("/employee");
         }

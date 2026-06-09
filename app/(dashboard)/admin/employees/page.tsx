@@ -23,7 +23,7 @@ interface Employee {
   _id: string;
   name: string;
   email: string;
-  role: "admin" | "employee";
+  role: "admin" | "employee" | "finance";
   employeeId?: string;
   department?: { _id: string; name: string } | null;
   shift?: { _id: string; name: string } | null;
@@ -37,7 +37,7 @@ interface EmployeeFormData {
   name: string;
   email: string;
   password: string;
-  role: "admin" | "employee";
+  role: "admin" | "employee" | "finance";
   department: string;
   shift: string;
   salary: string;
@@ -212,6 +212,7 @@ export default function EmployeeManagementPage() {
         email: formData.email,
         role: formData.role,
         department: formData.department,
+        salary: parseFloat(formData.salary) || 0,
       };
 
       if (formData.password) {
@@ -412,7 +413,7 @@ export default function EmployeeManagementPage() {
                 icon: <UserIcon className="w-5 h-5" />,
                 title: employee.name,
                 category: employee.role.toUpperCase(),
-                description: `${employee.department?.name || 'No Dept'} • ${employee.email}`,
+                description: `${employee.department?.name || 'No Dept'} • ${employee.email} • Salary: Rp ${(employee.salary || 0).toLocaleString()}`,
                 onClick: () => openEditDialog(employee),
                 status: (
                   <div className="flex items-center gap-2">
@@ -473,7 +474,7 @@ export default function EmployeeManagementPage() {
             options={roleOptions}
             value={formData.role}
             onChange={(e) =>
-              setFormData({ ...formData, role: e.target.value as "admin" | "employee" })
+              setFormData({ ...formData, role: e.target.value as "admin" | "employee" | "finance" })
             }
           />
           <NeuSelect
@@ -482,6 +483,13 @@ export default function EmployeeManagementPage() {
             value={formData.department}
             onChange={(e) => setFormData({ ...formData, department: e.target.value })}
             placeholder="Select department"
+          />
+          <NeuInput
+            label="Salary (Rp)"
+            type="number"
+            placeholder="Enter monthly salary"
+            value={formData.salary}
+            onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
           />
           <div className="flex gap-3 pt-4">
             <NeuButton
@@ -538,7 +546,7 @@ export default function EmployeeManagementPage() {
             options={roleOptions}
             value={formData.role}
             onChange={(e) =>
-              setFormData({ ...formData, role: e.target.value as "admin" | "employee" })
+              setFormData({ ...formData, role: e.target.value as "admin" | "employee" | "finance" })
             }
           />
           <NeuSelect
@@ -547,6 +555,13 @@ export default function EmployeeManagementPage() {
             value={formData.department}
             onChange={(e) => setFormData({ ...formData, department: e.target.value })}
             placeholder="Select department"
+          />
+          <NeuInput
+            label="Salary (Rp)"
+            type="number"
+            placeholder="Enter monthly salary"
+            value={formData.salary}
+            onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
           />
           <div className="flex gap-3 pt-4">
             <NeuButton

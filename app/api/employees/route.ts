@@ -114,7 +114,7 @@ export async function POST(
     await connectDB();
 
     const body: CreateEmployeeBody = await request.json();
-    const { name, email, password, department, shift, salary, joiningDate } = body;
+    const { name, email, password, role, department, shift, salary, joiningDate } = body;
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -190,7 +190,7 @@ export async function POST(
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password: hashedPassword,
-      role: "employee",
+      role: role === "admin" ? "admin" : "employee",
       employeeId,
       department: finalDepartmentId,
       shift: finalShiftId,

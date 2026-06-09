@@ -134,7 +134,7 @@ export default function EmployeePayslipPage() {
             <div className="space-y-4">
               <div className="flex justify-between py-3 border-b border-[var(--neu-border)]">
                 <span className="text-[var(--neu-text-secondary)]">Basic Salary</span>
-                <span className="font-medium">${selectedPayroll.basicSalary.toLocaleString()}</span>
+                <span className="font-medium">Rp {selectedPayroll.basicSalary.toLocaleString()}</span>
               </div>
               <div className="flex justify-between py-3 border-b border-[var(--neu-border)]">
                 <span className="text-[var(--neu-text-secondary)]">Present Days</span>
@@ -142,25 +142,25 @@ export default function EmployeePayslipPage() {
               </div>
               <div className="flex justify-between py-3 border-b border-[var(--neu-border)] text-red-600">
                 <span>Absent Deduction</span>
-                <span>-${selectedPayroll.absentDeduction.toLocaleString()}</span>
+                <span>-Rp {selectedPayroll.absentDeduction.toLocaleString()}</span>
               </div>
               <div className="flex justify-between py-3 border-b border-[var(--neu-border)] text-red-600">
                 <span>Late Deduction</span>
-                <span>-${selectedPayroll.lateDeduction.toLocaleString()}</span>
+                <span>-Rp {selectedPayroll.lateDeduction.toLocaleString()}</span>
               </div>
               {selectedPayroll.unpaidLeaveDeduction > 0 && (
                 <div className="flex justify-between py-3 border-b border-[var(--neu-border)] text-red-600">
                   <span>Unpaid Leave Deduction</span>
-                  <span>-${selectedPayroll.unpaidLeaveDeduction.toLocaleString()}</span>
+                  <span>-Rp {selectedPayroll.unpaidLeaveDeduction.toLocaleString()}</span>
                 </div>
               )}
               <div className="flex justify-between py-3 border-b border-[var(--neu-border)] text-green-600">
                 <span>Bonuses</span>
-                <span>+${selectedPayroll.bonuses.toLocaleString()}</span>
+                <span>+Rp {selectedPayroll.bonuses.toLocaleString()}</span>
               </div>
               <div className="flex justify-between py-4 text-lg font-bold">
                 <span>Net Salary</span>
-                <span className="text-[var(--neu-accent)]">${selectedPayroll.netSalary.toLocaleString()}</span>
+                <span className="text-[var(--neu-accent)]">Rp {selectedPayroll.netSalary.toLocaleString()}</span>
               </div>
             </div>
 

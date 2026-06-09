@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt, { SignOptions } from "jsonwebtoken";
-import { JWTPayload } from "@/types";
+import { JWTPayload, UserRole } from "@/types";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -28,10 +28,20 @@ export async function comparePassword(
 }
 
 /**
+ * Derive effective role: admin + Finance department = finance role
+ */
+export function getEffectiveRole(role: string, departmentName?: string): UserRole {
+  if (role === "admin" && departmentName && departmentName.toLowerCase() === "finance") {
+    return "finance";
+  }
+  return role as UserRole;
+}
+
+/**
  * Generate a JWT token with 7 days expiry
  */
-export function generateToken(userId: string, email: string, role: string): string {
-  const payload: JWTPayload = { userId, email, role: role as JWTPayload["role"] };
+export function generateToken(userId: string, email: string, role: string, departmentName?: string): string {
+  const payload: JWTPayload = { userId, email, role: role as JWTPayload["role"], departmentName };
   const expiresIn = (process.env.JWT_EXPIRES_IN || "7d") as SignOptions["expiresIn"];
   const options: SignOptions = { expiresIn };
   return jwt.sign(payload, JWT_SECRET!, options);

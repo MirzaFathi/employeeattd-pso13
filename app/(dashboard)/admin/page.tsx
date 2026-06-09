@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AttendanceStats } from "@/components/attendance/attendance-stats";
 import { AttendanceFilters, FilterState } from "@/components/attendance/attendance-filters";
@@ -42,6 +43,7 @@ interface AttendanceRecord {
 const ITEMS_PER_PAGE = 10;
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<AttendanceStatsData | null>(null);
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<AttendanceRecord[]>([]);
@@ -49,12 +51,33 @@ export default function AdminDashboardPage() {
   const [isLoadingRecords, setIsLoadingRecords] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [roleChecked, setRoleChecked] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     month: new Date().toISOString().slice(0, 7),
     employeeId: "",
     status: "",
     search: "",
   });
+
+  // Check if user is finance role and redirect
+  useEffect(() => {
+    const checkRole = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.data?.role === "finance") {
+            router.replace("/admin/holidays");
+            return;
+          }
+        }
+      } catch {
+        // Ignore errors, let the page load normally
+      }
+      setRoleChecked(true);
+    };
+    checkRole();
+  }, [router]);
 
   // Fetch stats
   const fetchStats = useCallback(async (month: string) => {

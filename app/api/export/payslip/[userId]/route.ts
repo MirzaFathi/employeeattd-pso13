@@ -4,7 +4,7 @@ import { requireAuth } from "@/lib/middleware-helpers";
 import Payroll from "@/models/Payroll";
 import User from "@/models/User";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import { ApiResponse } from "@/types";
 
 // GET /api/export/payslip/[userId]?month=1&year=2025
@@ -23,9 +23,11 @@ export async function GET(
     const month = parseInt(searchParams.get("month") || new Date().getMonth() + 1 + "");
     const year = parseInt(searchParams.get("year") || new Date().getFullYear() + "");
 
-    // Check if user is requesting their own payslip or is admin
-    const isAdmin = user.role === "admin";
-    if (userId !== user.userId && !isAdmin) {
+    // Check if user is requesting their own payslip or is authorized (admin/finance)
+    const effectiveRole = user.role === "admin" ? "admin" : (user.departmentName?.toLowerCase() === "finance" ? "finance" : user.role);
+    const isAuthorized = effectiveRole === "admin" || effectiveRole === "finance";
+    
+    if (userId !== user.userId && !isAuthorized) {
       return NextResponse.json(
         {
           success: false,
@@ -102,12 +104,12 @@ export async function GET(
 
     // Earnings Table
     const earningsData = [
-      ["Basic Salary", `$${(payroll.basicSalary || 0).toFixed(2)}`],
+      ["Basic Salary", `Rp ${(payroll.basicSalary || 0).toLocaleString()}`],
       ["Present Days", (payroll.presentDays || 0).toString()],
-      ["Bonuses", `$${(payroll.bonuses || 0).toFixed(2)}`],
+      ["Bonuses", `Rp ${(payroll.bonuses || 0).toLocaleString()}`],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 85,
       head: [["Description", "Amount"]],
       body: earningsData,
@@ -118,14 +120,14 @@ export async function GET(
 
     // Deductions Table
     const deductionsData = [
-      ["Absent Deduction", `$${(payroll.absentDeduction || 0).toFixed(2)}`],
-      ["Late Deduction", `$${(payroll.lateDeduction || 0).toFixed(2)}`],
-      ["Unpaid Leave Deduction", `$${(payroll.unpaidLeaveDeduction || 0).toFixed(2)}`],
+      ["Absent Deduction", `Rp ${(payroll.absentDeduction || 0).toLocaleString()}`],
+      ["Late Deduction", `Rp ${(payroll.lateDeduction || 0).toLocaleString()}`],
+      ["Unpaid Leave Deduction", `Rp ${(payroll.unpaidLeaveDeduction || 0).toLocaleString()}`],
     ];
 
     const finalY = (doc as any).lastAutoTable?.finalY || 110;
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: finalY + 10,
       head: [["Deduction", "Amount"]],
       body: deductionsData,
@@ -142,7 +144,7 @@ export async function GET(
 
     doc.setFontSize(12);
     doc.setTextColor(255, 255, 255);
-    doc.text(`Net Salary: $${(payroll.netSalary || 0).toFixed(2)}`, 20, netY + 28);
+    doc.text(`Net Salary: Rp ${(payroll.netSalary || 0).toLocaleString()}`, 20, netY + 28);
 
     // Footer
     doc.setFontSize(8);

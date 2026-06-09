@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { NeuCard, NeuCardContent } from "@/components/ui/neu-card";
 import { NeuButton } from "@/components/ui/neu-button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { DollarSign, Download, User as UserIcon, TrendingUp, TrendingDown } from "lucide-react";
+import { DollarSign, Download, User as UserIcon, TrendingUp, TrendingDown, Pencil } from "lucide-react";
 import { ChipLoader } from "@/components/ui/chip-loader";
 import { List2, ListItem } from "@/components/ui/list-2";
 import { NeuBadge } from "@/components/ui/neu-badge";
+import { NeuDialog } from "@/components/ui/neu-dialog";
+import { NeuInput } from "@/components/ui/neu-input";
 
 interface PayrollRecord {
   _id: string;
@@ -23,12 +25,21 @@ interface PayrollRecord {
   status: "draft" | "finalized";
 }
 
+interface BonusEditState {
+  id: string;
+  employeeName: string;
+  currentBonus: number;
+  newBonus: string;
+}
+
 export default function AdminPayrollPage() {
   const [payroll, setPayroll] = useState<PayrollRecord[]>([]);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [bonusEdit, setBonusEdit] = useState<BonusEditState | null>(null);
+  const [updatingBonus, setUpdatingBonus] = useState(false);
 
   const fetchPayroll = async () => {
     setLoading(true);
@@ -82,6 +93,35 @@ export default function AdminPayrollPage() {
 
   const downloadPayslip = (userId: string) => {
     window.open(`/api/export/payslip/${userId}?month=${month}&year=${year}`, "_blank");
+  };
+
+  const openBonusDialog = (record: PayrollRecord) => {
+    setBonusEdit({
+      id: record._id,
+      employeeName: record.userId?.name || "Unknown",
+      currentBonus: record.bonuses,
+      newBonus: record.bonuses.toString(),
+    });
+  };
+
+  const handleUpdateBonus = async () => {
+    if (!bonusEdit) return;
+    setUpdatingBonus(true);
+    try {
+      const response = await fetch(`/api/payroll/${bonusEdit.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bonuses: parseFloat(bonusEdit.newBonus) || 0 }),
+      });
+      if (response.ok) {
+        setBonusEdit(null);
+        fetchPayroll();
+      }
+    } catch (error) {
+      console.error("Failed to update bonus", error);
+    } finally {
+      setUpdatingBonus(false);
+    }
   };
 
   // We use the overlay mode in the return block instead of an early return 
@@ -145,18 +185,18 @@ export default function AdminPayrollPage() {
                 description: (
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-4 text-sm">
-                      <span className="opacity-70">Basic: ${record.basicSalary.toLocaleString()}</span>
+                      <span className="opacity-70">Basic: Rp {record.basicSalary.toLocaleString()}</span>
                       <span className="flex items-center gap-1 text-[var(--neu-danger)]">
                         <TrendingDown className="w-3 h-3" />
-                        -${(record.absentDeduction + record.lateDeduction).toLocaleString()}
+                        -Rp {(record.absentDeduction + record.lateDeduction).toLocaleString()}
                       </span>
                       <span className="flex items-center gap-1 text-[var(--neu-success)]">
                         <TrendingUp className="w-3 h-3" />
-                        +${record.bonuses.toLocaleString()}
+                        +Rp {record.bonuses.toLocaleString()}
                       </span>
                     </div>
                     <div className="text-xl font-black text-[var(--neu-text)]">
-                      Net: <span className="text-[var(--neu-accent)]">${record.netSalary.toLocaleString()}</span>
+                      Net: <span className="text-[var(--neu-accent)]">Rp {record.netSalary.toLocaleString()}</span>
                       <span className="text-xs font-normal opacity-50 ml-2">({record.presentDays} Days)</span>
                     </div>
                   </div>
@@ -171,8 +211,20 @@ export default function AdminPayrollPage() {
                         <NeuButton
                           size="icon"
                           variant="ghost"
-                          onClick={() => handleFinalize(record._id)}
+                          onClick={() => openBonusDialog(record)}
                           className="h-8 w-8 text-[var(--neu-accent)] hover:bg-[var(--neu-accent)]/10"
+                          title="Edit Bonus"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </NeuButton>
+                      )}
+                      {record.status === "draft" && (
+                        <NeuButton
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleFinalize(record._id)}
+                          className="h-8 w-8 text-[var(--neu-success)] hover:bg-[var(--neu-success)]/10"
+                          title="Finalize"
                         >
                           <TrendingUp className="w-4 h-4" />
                         </NeuButton>
@@ -193,6 +245,45 @@ export default function AdminPayrollPage() {
           )}
         </NeuCardContent>
       </NeuCard>
+
+      {/* Bonus Edit Dialog */}
+      <NeuDialog
+        open={!!bonusEdit}
+        onClose={() => setBonusEdit(null)}
+        title={`Edit Bonus — ${bonusEdit?.employeeName || ""}`}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--neu-text-secondary)]">
+            Adjust the bonus amount for this payroll period. Net salary will be recalculated automatically.
+          </p>
+          <NeuInput
+            label="Bonus Amount (Rp)"
+            type="number"
+            placeholder="Enter bonus amount"
+            value={bonusEdit?.newBonus || ""}
+            onChange={(e) =>
+              setBonusEdit((prev) => prev ? { ...prev, newBonus: e.target.value } : null)
+            }
+          />
+          <div className="flex gap-3 pt-4">
+            <NeuButton
+              variant="accent"
+              onClick={handleUpdateBonus}
+              loading={updatingBonus}
+              className="flex-1"
+            >
+              Save Bonus
+            </NeuButton>
+            <NeuButton
+              variant="ghost"
+              onClick={() => setBonusEdit(null)}
+              disabled={updatingBonus}
+            >
+              Cancel
+            </NeuButton>
+          </div>
+        </div>
+      </NeuDialog>
     </div>
   );
 }

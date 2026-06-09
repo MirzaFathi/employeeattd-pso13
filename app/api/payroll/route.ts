@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
-import { requireAdmin } from "@/lib/middleware-helpers";
+import { requireAdminOrFinance } from "@/lib/middleware-helpers";
 import Payroll from "@/models/Payroll";
 import User from "@/models/User";
 import Attendance from "@/models/Attendance";
@@ -19,7 +19,7 @@ export async function POST(
 ): Promise<NextResponse<ApiResponse<unknown>>> {
   try {
     // Check admin authorization
-    const authResult = await requireAdmin(request);
+    const authResult = await requireAdminOrFinance(request);
     if (authResult instanceof NextResponse) {
       return authResult;
     }
@@ -54,8 +54,8 @@ export async function POST(
           year,
         });
 
-        if (existing) {
-          continue; // Skip already generated
+        if (existing && existing.status === "finalized") {
+          continue; // Skip finalized payroll — cannot be changed
         }
 
         // Get month date range
@@ -102,30 +102,48 @@ export async function POST(
         const lateDeduction = Math.floor(lateDays / 3) * perDaySalary;
         const unpaidLeaveDeduction = unpaidLeaveDays * perDaySalary;
 
+        // Keep existing bonuses if updating a draft
+        const bonuses = existing ? existing.bonuses : 0;
+
         // Net salary
         const netSalary =
-          basicSalary - absentDeduction - lateDeduction - unpaidLeaveDeduction;
+          basicSalary - absentDeduction - lateDeduction - unpaidLeaveDeduction + bonuses;
 
-        // Create payroll record
-        const payroll = await Payroll.create({
-          userId: employee._id,
-          month,
-          year,
-          basicSalary,
-          presentDays: presentDays + lateDays + halfDays * 0.5,
-          absentDays,
-          lateDays,
-          leaveDays,
-          unpaidLeaveDays,
-          absentDeduction,
-          lateDeduction,
-          unpaidLeaveDeduction,
-          bonuses: 0,
-          netSalary,
-          status: "draft",
-        });
-
-        results.push(payroll);
+        if (existing) {
+          // Update existing draft record with latest salary data
+          existing.basicSalary = basicSalary;
+          existing.presentDays = presentDays + lateDays + halfDays * 0.5;
+          existing.absentDays = absentDays;
+          existing.lateDays = lateDays;
+          existing.leaveDays = leaveDays;
+          existing.unpaidLeaveDays = unpaidLeaveDays;
+          existing.absentDeduction = absentDeduction;
+          existing.lateDeduction = lateDeduction;
+          existing.unpaidLeaveDeduction = unpaidLeaveDeduction;
+          existing.netSalary = netSalary;
+          await existing.save();
+          results.push(existing);
+        } else {
+          // Create new payroll record
+          const payroll = await Payroll.create({
+            userId: employee._id,
+            month,
+            year,
+            basicSalary,
+            presentDays: presentDays + lateDays + halfDays * 0.5,
+            absentDays,
+            lateDays,
+            leaveDays,
+            unpaidLeaveDays,
+            absentDeduction,
+            lateDeduction,
+            unpaidLeaveDeduction,
+            bonuses: 0,
+            netSalary,
+            status: "draft",
+          });
+          results.push(payroll);
+        }
       } catch (err) {
         errors.push(
           `${employee.name}: ${err instanceof Error ? err.message : "Error"}`
@@ -163,7 +181,7 @@ export async function GET(
 ): Promise<NextResponse<ApiResponse<unknown>>> {
   try {
     // Check admin authorization
-    const authResult = await requireAdmin(request);
+    const authResult = await requireAdminOrFinance(request);
     if (authResult instanceof NextResponse) {
       return authResult;
     }
