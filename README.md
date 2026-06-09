@@ -20,6 +20,12 @@
 
 > **AttendEase** is a complete, production-ready HR management platform built for small to mid-sized teams. From GPS-based check-ins and leave management to payroll generation and role-based dashboards — everything your team needs in one place.
 
+## 🚀 Deployment
+
+AttendEase is deployed on Google Cloud Run with automatic deployments on every `git push` to `main`.
+https://my-app-service-298471478049.asia-southeast2.run.app/
+
+---
 ## ✍️ Built By
 
 **Muhammad Sameer**  
@@ -529,12 +535,6 @@ npm run lint     # ESLint check
 
 ---
 
-## 🚀 Deployment
-
-AttendEase is deployed on Google Cloud Run with automatic deployments on every `git push` to `main`.
-https://my-app-service-298471478049.asia-southeast2.run.app/
-
----
 
 <div align="center">
 
