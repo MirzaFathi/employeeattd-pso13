@@ -1,12 +1,43 @@
-name: Build & Deploy to Cloud Run
+name: CI – Test & Deploy
 
 on:
   push:
     branches: [main] #trigger / pemicu
+  pull_request:
+    branches: [main] #trigger / pemicu
 
 jobs:
-  deploy:
+  # ── Job 1: Unit Tests ──────────────────────────────────
+  test:
+    name: Unit Tests #nama job
     runs-on: ubuntu-latest #mesin untuk menjalankan job ini
+
+    steps: #langkah-langkah
+      - name: Checkout code #checkout code
+        uses: actions/checkout@v4 #mengambil kode dari github repo
+
+      - name: Setup Node.js #setup node js
+        uses: actions/setup-node@v4 #mengatur node js
+        with:
+          node-version: 20 #versi node js yang digunakan
+          cache: npm #menggunakan npm untuk package
+
+      - name: Install dependencies #install dependencies
+        run: npm ci #memeriksa apakah ada dependencies yang perlu di install
+
+      - name: Run tests #menjalankan unit test
+        run: npm run test:ci #menjalankan unit test
+        env:
+          JWT_SECRET: ci-test-secret-key #memberikan key untuk decrypt
+          JWT_EXPIRES_IN: 1h #memberikan token expire
+
+  # ── Job 2: Build & Deploy (hanya jalan kalau test sukses) ──
+  deploy:
+    name: Build & Deploy to Cloud Run
+    needs: test #menunggu job test selesai dan sukses
+    runs-on: ubuntu-latest #mesin untuk menjalankan job ini
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' #hanya deploy saat push ke main, bukan pull request
+
     steps: #langkah-langkah
       - uses: actions/checkout@v4 #mengambil kode dari github repo
 
