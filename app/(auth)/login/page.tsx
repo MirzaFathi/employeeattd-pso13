@@ -12,7 +12,7 @@ interface LoginResponse {
     _id: string;
     name: string;
     email: string;
-    role: "admin" | "employee";
+    role: "admin" | "employee" | "finance";
     department: string;
     createdAt: string;
   };
@@ -46,7 +46,9 @@ export default function LoginPage() {
 
       // Redirect based on role with a full page refresh
       const userRole = result.data?.role;
-      if (userRole === "admin") {
+      if (userRole === "finance") {
+        window.location.href = "/admin/holidays";
+      } else if (userRole === "admin") {
         window.location.href = "/admin";
       } else {
         window.location.href = "/employee";

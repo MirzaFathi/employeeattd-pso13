@@ -19,27 +19,60 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSidebar } from "@/lib/SidebarContext";
+import type { UserRole } from "@/types";
 
-const navItems = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Employees", href: "/admin/employees", icon: Users },
-  { name: "Attendance", href: "/admin/attendance", icon: ClipboardCheck },
-  { name: "Leaves", href: "/admin/leaves", icon: Calendar },
-  { name: "Holidays", href: "/admin/holidays", icon: Calendar },
-  { name: "Payroll", href: "/admin/payroll", icon: DollarSign },
-  { name: "Shifts", href: "/admin/shifts", icon: Clock },
-  { name: "Departments", href: "/admin/departments", icon: Building2 },
-  { name: "Reports", href: "/admin/reports", icon: BarChart2 },
-  { name: "Audit Logs", href: "/admin/audit-logs", icon: ScrollText },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+interface NavItem {
+  name: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  /** Which roles can see this item. If omitted, all admin-type roles can see it. */
+  allowedRoles?: UserRole[];
+}
+
+const navItems: NavItem[] = [
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard, allowedRoles: ["admin"] },
+  { name: "Employees", href: "/admin/employees", icon: Users, allowedRoles: ["admin"] },
+  { name: "Attendance", href: "/admin/attendance", icon: ClipboardCheck, allowedRoles: ["admin"] },
+  { name: "Leaves", href: "/admin/leaves", icon: Calendar, allowedRoles: ["admin"] },
+  { name: "Holidays", href: "/admin/holidays", icon: Calendar, allowedRoles: ["admin", "finance"] },
+  { name: "Payroll", href: "/admin/payroll", icon: DollarSign, allowedRoles: ["admin", "finance"] },
+  { name: "Shifts", href: "/admin/shifts", icon: Clock, allowedRoles: ["admin"] },
+  { name: "Departments", href: "/admin/departments", icon: Building2, allowedRoles: ["admin"] },
+  { name: "Reports", href: "/admin/reports", icon: BarChart2, allowedRoles: ["admin"] },
+  { name: "Audit Logs", href: "/admin/audit-logs", icon: ScrollText, allowedRoles: ["admin"] },
+  { name: "Settings", href: "/admin/settings", icon: Settings, allowedRoles: ["admin"] },
 ];
 
 export function AdminSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { isAdminCollapsed: isCollapsed, setIsAdminCollapsed: setIsCollapsed } = useSidebar();
+  const [userRole, setUserRole] = useState<UserRole>("admin");
+
+  // Fetch user's effective role
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data?.role) {
+            setUserRole(data.data.role as UserRole);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user role for sidebar:", error);
+      }
+    };
+    fetchRole();
+  }, []);
+
+  // Filter nav items based on user role
+  const filteredNavItems = navItems.filter(
+    (item) => !item.allowedRoles || item.allowedRoles.includes(userRole)
+  );
 
   return (
     <>
@@ -69,7 +102,7 @@ export function AdminSidebar() {
       >
         {/* Logo */}
         <div className="h-20 flex items-center justify-center border-b border-[var(--neu-border)] p-4">
-          <Link href="/admin" className="flex items-center gap-2">
+          <Link href={userRole === "finance" ? "/admin/holidays" : "/admin"} className="flex items-center gap-2">
             <img 
               src="/logo.png" 
               alt="AttendEase Logo" 
@@ -96,7 +129,7 @@ export function AdminSidebar() {
 
         {/* Nav items */}
         <nav className="p-4 space-y-2">
-          {navItems.map((item) => {
+          {filteredNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 

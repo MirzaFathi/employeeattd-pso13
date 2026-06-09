@@ -34,4 +34,4 @@ jobs:
             --allow-unauthenticated \
             --port=8080 \
             --memory=512Mi \
-            --set-env-vars="^|^MONGODB_URI=${{ secrets.MONGODB_URI }}|JWT_SECRET=${{ secrets.JWT_SECRET }}|JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} |GOOGLE_CALENDAR_API_KEY=${{ secrets.GOOGLE_CALENDAR_API_KEY }}"
+            --set-env-vars="^|^MONGODB_URI=${{ secrets.MONGODB_URI }}|JWT_SECRET=${{ secrets.JWT_SECRET }}|JWT_EXPIRES_IN=1d|GOOGLE_CALENDAR_API_KEY=${{ secrets.GOOGLE_CALENDAR_API_KEY }}"

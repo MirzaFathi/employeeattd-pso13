@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import connectDB from "@/lib/db";
-import { comparePassword, generateToken } from "@/lib/auth";
+import { comparePassword, generateToken, getEffectiveRole } from "@/lib/auth";
 import User from "@/models/User";
+import Department from "@/models/Department";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,9 +20,11 @@ export async function POST(request: NextRequest) {
 
     // Connect to database
     await connectDB();
+    // Ensure Department model is registered for populate
+    void Department;
 
     // Find user by email and include password for comparison
-    const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
+    const user = await User.findOne({ email: email.toLowerCase() }).select("+password").populate("department", "name");
 
     if (!user) {
       return NextResponse.json(
@@ -48,7 +51,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Sign JWT token
-    const token = generateToken(user._id.toString(), user.email, user.role);
+    const departmentName = user.department?.name || undefined;
+    const token = generateToken(user._id.toString(), user.email, user.role, departmentName);
+
+    // Compute effective role
+    const effectiveRole = getEffectiveRole(user.role, departmentName);
 
     // Set HTTP-only cookie
     const cookieStore = await cookies();
@@ -69,7 +76,7 @@ export async function POST(request: NextRequest) {
           user: {
             id: user._id.toString(),
             name: user.name,
-            role: user.role,
+            role: effectiveRole,
           },
           token,
         },

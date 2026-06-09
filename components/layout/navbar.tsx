@@ -36,6 +36,18 @@ const navItems: NavItem[] = [
     roles: ["admin"],
   },
   {
+    label: "Holidays",
+    href: "/admin/holidays",
+    icon: <Clock className="w-4 h-4" />,
+    roles: ["finance"],
+  },
+  {
+    label: "Payroll",
+    href: "/admin/payroll",
+    icon: <Clock className="w-4 h-4" />,
+    roles: ["finance"],
+  },
+  {
     label: "My Attendance",
     href: "/employee",
     icon: <Clock className="w-4 h-4" />,
@@ -124,7 +136,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 h-full flex items-center justify-between">
         {/* Logo */}
         <Link
-          href={user.role === "admin" ? "/dashboard" : "/employee"}
+          href={user.role === "admin" ? "/dashboard" : user.role === "finance" ? "/admin/holidays" : "/employee"}
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
           <img src="/logo.png" alt="AttendEase Logo" className="h-10 w-auto object-contain" />

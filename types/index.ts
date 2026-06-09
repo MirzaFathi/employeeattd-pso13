@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-export type UserRole = "admin" | "employee";
+export type UserRole = "admin" | "employee" | "finance";
 export type AttendanceStatus = "present" | "absent" | "late" | "half-day" | "on-leave";
 export type LeaveType = "sick" | "casual" | "annual" | "unpaid";
 export type LeaveStatus = "pending" | "approved" | "rejected";
@@ -143,6 +143,7 @@ export interface JWTPayload {
   userId: string;
   email: string;
   role: UserRole;
+  departmentName?: string;
 }
 
 // Request body types
@@ -187,6 +188,7 @@ export interface CreateEmployeeBody {
   name: string;
   email: string;
   password: string;
+  role?: "admin" | "employee";
   department?: string;
   shift?: string;
   salary?: number;

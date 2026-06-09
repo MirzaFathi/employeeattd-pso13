@@ -29,9 +29,6 @@ const departmentSchema = new mongoose.Schema<IDepartment>(
   }
 );
 
-// Index for name lookups
-departmentSchema.index({ name: 1 });
-
 // Index for active status
 departmentSchema.index({ isActive: 1 });
 

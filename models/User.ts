@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IUser, UserRole } from "@/types";
+import { IUser } from "@/types";
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ["admin", "employee"] as UserRole[],
+      enum: ["admin", "employee"],
       default: "employee",
     },
     employeeId: {

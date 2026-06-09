@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import { getAuthUser } from "@/lib/middleware-helpers";
+import { getEffectiveRole } from "@/lib/auth";
 import User from "@/models/User";
+import Department from "@/models/Department";
 import { ApiResponse } from "@/types";
 
 export async function GET(
@@ -23,9 +25,11 @@ export async function GET(
 
     // Connect to database
     await connectDB();
+    // Ensure Department model is registered for populate
+    void Department;
 
     // Find user by ID (exclude password)
-    const user = await User.findById(authUser.userId);
+    const user = await User.findById(authUser.userId).populate("department", "name");
 
     if (!user) {
       return NextResponse.json<ApiResponse<never>>(
@@ -37,6 +41,10 @@ export async function GET(
       );
     }
 
+    // Compute effective role
+    const departmentName = user.department?.name || undefined;
+    const effectiveRole = getEffectiveRole(user.role, departmentName);
+
     // Return user data
     return NextResponse.json<ApiResponse<unknown>>(
       {
@@ -45,7 +53,7 @@ export async function GET(
           _id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role,
+          role: effectiveRole,
           department: user.department,
           createdAt: user.createdAt,
         },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
-import { requireAdmin } from "@/lib/middleware-helpers";
+import { requireAdminOrFinance } from "@/lib/middleware-helpers";
 import Payroll from "@/models/Payroll";
 import { ApiResponse, UpdatePayrollBody } from "@/types";
 import { createNotification } from "@/lib/notifications";
@@ -12,7 +12,7 @@ export async function PUT(
 ): Promise<NextResponse<ApiResponse<unknown>>> {
   try {
     // Check admin authorization
-    const authResult = await requireAdmin(request);
+    const authResult = await requireAdminOrFinance(request);
     if (authResult instanceof NextResponse) {
       return authResult;
     }
@@ -91,7 +91,7 @@ export async function PATCH(
 ): Promise<NextResponse<ApiResponse<unknown>>> {
   try {
     // Check admin authorization
-    const authResult = await requireAdmin(request);
+    const authResult = await requireAdminOrFinance(request);
     if (authResult instanceof NextResponse) {
       return authResult;
     }

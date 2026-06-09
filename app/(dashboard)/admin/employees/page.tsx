@@ -23,7 +23,7 @@ interface Employee {
   _id: string;
   name: string;
   email: string;
-  role: "admin" | "employee";
+  role: "admin" | "employee" | "finance";
   employeeId?: string;
   department?: { _id: string; name: string } | null;
   shift?: { _id: string; name: string } | null;
