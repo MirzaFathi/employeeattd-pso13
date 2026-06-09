@@ -19,6 +19,20 @@
 <br/>
 
 > **AttendEase** is a complete, production-ready HR management platform built for small to mid-sized teams. From GPS-based check-ins and leave management to payroll generation and role-based dashboards — everything your team needs in one place.
+
+## ✍️ Built By
+
+**Muhammad Sameer**  
+*Original Full-Stack Developer*
+
+**Mirza Fathi Taufiqurrahman**
+*Student Learning DevOps & Cloud Engineer*
+
+**Hafidz Putra Dermawan**
+*Student Learning DevOps & Cloud Engineer*
+
+**Arrivo Arsa Mevano**
+*Student Learning DevOps & Cloud Engineer*
 </div>
 
 🌐 **Project ini telah dikembangkan kembali oleh Group 13 PSO C dengan detail sebagai berikut:**
@@ -524,16 +538,6 @@ https://my-app-service-298471478049.asia-southeast2.run.app/
 
 <div align="center">
 
-## ✍️ Built By
-
-**Muhammad Sameer**  
-*Original Full-Stack Developer*
-
-**Mirza Fathi Taufiqurrahman**
-*DevOps & Cloud Engineer*
-
-**Hafidz Putra Dermawan**
-*DevOps & Cloud Engineer*
 <br/>
 
 [![Email](https://img.shields.io/badge/Email-sameerdevexpert%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:sameerdevexpert@gmail.com)
