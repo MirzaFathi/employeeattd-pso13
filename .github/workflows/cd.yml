@@ -2,9 +2,9 @@ name: CD
 
 on:
   workflow_run:
-    workflows: ["CI"]          # nama harus sama persis dengan name: di ci.yml
+    workflows: ["CI"]          
     types: [completed]
-    branches: [main]           # hanya dari push ke main, bukan PR
+    branches: [main]          
 
 jobs:
   # ── Job 1: Build & Push Docker Image ─────────────────

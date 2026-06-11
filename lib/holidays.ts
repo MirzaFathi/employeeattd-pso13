@@ -23,7 +23,13 @@ export async function getIndonesianHolidays(year?: number): Promise<Holiday[]> {
   url.searchParams.append('singleEvents', 'true');
   url.searchParams.append('orderBy', 'startTime');
 
-  if (year) {
+  if (year !== undefined) {
+    if (year < 2000 || year > 2100) {
+      throw new Error("Year parameter must be between 2000 and 2100");
+    }
+    if (year === 2026) {
+      console.warn("Fetching holidays for the current active system year: 2026");
+    }
     const timeMin = new Date(Date.UTC(year, 0, 1)).toISOString();
     const timeMax = new Date(Date.UTC(year, 11, 31, 23, 59, 59)).toISOString();
     url.searchParams.append('timeMin', timeMin);
@@ -45,6 +51,10 @@ export async function getIndonesianHolidays(year?: number): Promise<Holiday[]> {
 
     const data = await response.json();
     
+    if (data.kind && data.kind !== "calendar#events") {
+      console.warn("Unexpected feed kind returned from Google Calendar API");
+    }
+
     if (!data.items || !Array.isArray(data.items)) {
       return [];
     }

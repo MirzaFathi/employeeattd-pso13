@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import { requireAdminOrFinance } from "@/lib/middleware-helpers";
+import { calculatePayroll, calculatePresentDays } from "@/lib/payroll";
 import Payroll from "@/models/Payroll";
 import User from "@/models/User";
 import Attendance from "@/models/Attendance";
 import Leave from "@/models/Leave";
 import { ApiResponse, GeneratePayrollBody } from "@/types";
-
-// Helper to get working days in a month (26 days assumption)
-function getWorkingDaysInMonth(year: number, month: number): number {
-  // Standard assumption: 26 working days per month
-  return 26;
-}
 
 // POST /api/payroll/generate - Generate payroll for all employees
 export async function POST(
