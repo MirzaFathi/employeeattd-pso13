@@ -1,10 +1,32 @@
 @import "tailwindcss";
 
 :root {
+  /* Light Mode Neumorphic Design System */
+  --background: #f0f4f8;
+  --foreground: #1e293b;
+  
+  --neu-bg: #f0f4f8;
+  --neu-surface: #ffffff;
+  --neu-surface-light: #f8fafc;
+  --neu-accent: #6366f1;
+  --neu-accent-hover: #4f46e5;
+  --neu-text: #1e293b;
+  --neu-text-secondary: #475569;
+  --neu-text-muted: #64748b;
+  --neu-success: #10b981;
+  --neu-warning: #f59e0b;
+  --neu-danger: #ef4444;
+  --neu-shadow-dark: #d1d9e6;
+  --neu-shadow-light: #ffffff;
+  --neu-border: rgba(0, 0, 0, 0.05);
+  --neu-radius: 0.75rem;
+}
+
+.dark {
+  /* Dark Mode Neumorphic Design System */
   --background: #1a1a2e;
   --foreground: #e2e8f0;
 
-  /* Neumorphic Design System */
   --neu-bg: #1a1a2e;
   --neu-surface: #16213e;
   --neu-surface-light: #1a2547;
@@ -27,13 +49,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1a1a2e;
-    --foreground: #e2e8f0;
-  }
 }
 
 /* Neumorphic utility classes */

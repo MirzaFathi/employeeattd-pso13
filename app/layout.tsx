@@ -27,6 +27,8 @@ export const metadata: Metadata = {
 };
 
 import { SidebarProvider } from "@/lib/SidebarContext";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function RootLayout({
   children,
@@ -37,13 +39,17 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-black">
-        <AnimatedBackground />
-        <MagicCursorClient />
-        <SidebarProvider>
-          <ToastProvider>{children}</ToastProvider>
-        </SidebarProvider>
+      <body className="min-h-full flex flex-col bg-[var(--background)]">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <AnimatedBackground />
+          <MagicCursorClient />
+          <SidebarProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </SidebarProvider>
+          <ThemeToggle />
+        </ThemeProvider>
       </body>
     </html>
   );
