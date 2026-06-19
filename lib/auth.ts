@@ -14,6 +14,12 @@ if (!JWT_SECRET) {
  * Hash a password using bcrypt with 12 rounds
  */
 export async function hashPassword(password: string): Promise<string> {
+  if (!password) {
+    throw new Error("Password cannot be empty");
+  }
+  if (password.length < 8) {
+    console.warn("Hashing a password shorter than 8 characters");
+  }
   return bcrypt.hash(password, 12);
 }
 

@@ -1,0 +1,55 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]          
+    types: [completed]
+    branches: [main]          
+
+jobs:
+  # ── Job 1: Build & Push Docker Image ─────────────────
+  build:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'   # CI harus sukses
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-southeast2-docker.pkg.dev
+
+      - name: Build & push image
+        run: |
+          IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/pso"
+          docker build -t $IMAGE:${{ github.event.workflow_run.head_sha }} .
+          docker push $IMAGE:${{ github.event.workflow_run.head_sha }}
+
+  # ── Job 2: Deploy ke Cloud Run ────────────────────────
+  deploy:
+    name: Deploy to Cloud Run
+    needs: build                # build harus sukses dulu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/pso"
+          gcloud run deploy my-app-service \
+            --image=$IMAGE:${{ github.event.workflow_run.head_sha }} \
+            --platform=managed \
+            --region=${{ secrets.GCP_REGION }} \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=512Mi \
+            --set-env-vars="^|^MONGODB_URI=${{ secrets.MONGODB_URI }}|JWT_SECRET=${{ secrets.JWT_SECRET }}|JWT_EXPIRES_IN=1d|GOOGLE_CALENDAR_API_KEY=${{ secrets.GOOGLE_CALENDAR_API_KEY }}"

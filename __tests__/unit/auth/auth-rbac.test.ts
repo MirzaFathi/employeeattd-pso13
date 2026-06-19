@@ -4,8 +4,8 @@
  * ───────────────────────────────────────────────────────────
  *
  * Tests for JWT token generation, verification, password
- * hashing, and role-based access control logic defined in
- * lib/auth.ts and lib/middleware-helpers.ts.
+ * hashing, role-based access control, and the getEffectiveRole
+ * logic defined in lib/auth.ts.
  *
  * These tests set JWT_SECRET via process.env so they can run
  * in CI without a .env file.
@@ -21,6 +21,7 @@ import {
   verifyToken,
   hashPassword,
   comparePassword,
+  getEffectiveRole,
 } from "@/lib/auth";
 import type { JWTPayload } from "@/types";
 
@@ -60,6 +61,35 @@ describe("Auth & RBAC", () => {
       const token2 = generateToken("user-b", "b@attendease.com", "employee");
 
       expect(token1).not.toBe(token2);
+    });
+
+    it("should embed departmentName in payload when provided", () => {
+      const token = generateToken("user-fin", "fin@attendease.com", "admin", "Finance");
+      const decoded = jwt.decode(token) as JWTPayload;
+
+      expect(decoded.departmentName).toBe("Finance");
+    });
+
+    it("should leave departmentName undefined when not provided", () => {
+      const token = generateToken("user-no-dept", "nodept@attendease.com", "employee");
+      const decoded = jwt.decode(token) as JWTPayload;
+
+      expect(decoded.departmentName).toBeUndefined();
+    });
+
+    it("should fallback to '7d' expiry when JWT_EXPIRES_IN is not set", () => {
+      // Temporarily remove JWT_EXPIRES_IN
+      const original = process.env.JWT_EXPIRES_IN;
+      delete process.env.JWT_EXPIRES_IN;
+
+      const token = generateToken("user-fallback", "fb@attendease.com", "employee");
+      const decoded = jwt.decode(token) as JWTPayload & { exp: number; iat: number };
+
+      // 7d = 604800 seconds
+      expect(decoded.exp - decoded.iat).toBe(604800);
+
+      // Restore
+      process.env.JWT_EXPIRES_IN = original;
     });
   });
 
@@ -224,4 +254,48 @@ describe("Auth & RBAC", () => {
       expect(await comparePassword(plain, hash2)).toBe(true);
     });
   });
+
+  // ────────────────────────────────────────────
+  // 5. getEffectiveRole – Effective Role Derivation
+  // ────────────────────────────────────────────
+  describe("getEffectiveRole", () => {
+    it("should return 'finance' when role is admin AND department is Finance", () => {
+      const role = getEffectiveRole("admin", "Finance");
+      expect(role).toBe("finance");
+    });
+
+    it("should be case-insensitive for department name 'finance'", () => {
+      expect(getEffectiveRole("admin", "finance")).toBe("finance");
+      expect(getEffectiveRole("admin", "FINANCE")).toBe("finance");
+      expect(getEffectiveRole("admin", "Finance")).toBe("finance");
+      expect(getEffectiveRole("admin", "fInAnCe")).toBe("finance");
+    });
+
+    it("should return 'admin' when role is admin but department is NOT Finance", () => {
+      const role = getEffectiveRole("admin", "Engineering");
+      expect(role).toBe("admin");
+    });
+
+    it("should return 'admin' when role is admin and departmentName is undefined", () => {
+      const role = getEffectiveRole("admin");
+      expect(role).toBe("admin");
+    });
+
+    it("should return 'admin' when role is admin and departmentName is empty string", () => {
+      const role = getEffectiveRole("admin", "");
+      expect(role).toBe("admin");
+    });
+
+    it("should return 'employee' when role is employee regardless of department", () => {
+      expect(getEffectiveRole("employee", "Finance")).toBe("employee");
+      expect(getEffectiveRole("employee", "Engineering")).toBe("employee");
+      expect(getEffectiveRole("employee")).toBe("employee");
+    });
+
+    it("should return 'finance' as-is when role is already finance", () => {
+      const role = getEffectiveRole("finance");
+      expect(role).toBe("finance");
+    });
+  });
 });
+

@@ -17,58 +17,11 @@
  *   • bonuses added   → netSalary = basic − deductions + bonuses
  */
 
-// ── Portable calculation functions (mirrors route.ts logic) ────
-// We extract them here so the test does NOT import from the route
-// (which has DB / Next.js deps). If the team later refactors the
-// payroll math into lib/payroll.ts these can be swapped to imports.
-
-const WORKING_DAYS_PER_MONTH = 26;
-
-interface PayrollInput {
-  basicSalary: number;
-  absentDays: number;
-  lateDays: number;
-  unpaidLeaveDays: number;
-  bonuses?: number;
-}
-
-interface PayrollResult {
-  perDaySalary: number;
-  absentDeduction: number;
-  lateDeduction: number;
-  unpaidLeaveDeduction: number;
-  totalDeductions: number;
-  netSalary: number;
-}
-
-function calculatePayroll(input: PayrollInput): PayrollResult {
-  const perDaySalary = input.basicSalary / WORKING_DAYS_PER_MONTH;
-  const absentDeduction = input.absentDays * perDaySalary;
-  const lateDeduction = Math.floor(input.lateDays / 3) * perDaySalary;
-  const unpaidLeaveDeduction = input.unpaidLeaveDays * perDaySalary;
-  const totalDeductions = absentDeduction + lateDeduction + unpaidLeaveDeduction;
-  const bonuses = input.bonuses ?? 0;
-  const netSalary = input.basicSalary - totalDeductions + bonuses;
-
-  return {
-    perDaySalary,
-    absentDeduction,
-    lateDeduction,
-    unpaidLeaveDeduction,
-    totalDeductions,
-    netSalary,
-  };
-}
-
-interface PresentDaysInput {
-  present: number;
-  late: number;
-  halfDays: number;
-}
-
-function calculatePresentDays(input: PresentDaysInput): number {
-  return input.present + input.late + input.halfDays * 0.5;
-}
+import {
+  calculatePayroll,
+  calculatePresentDays,
+  WORKING_DAYS_PER_MONTH,
+} from "@/lib/payroll";
 
 // ── Test Suites ────────────────────────────────────────────
 
@@ -298,6 +251,65 @@ describe("Payroll Engine", () => {
     it("should handle odd number of half days (fractional result)", () => {
       const days = calculatePresentDays({ present: 10, late: 0, halfDays: 3 });
       expect(days).toBe(11.5);
+    });
+  });
+
+  // ────────────────────────────────────────────
+  // 8. Extreme & Validation Edge Cases
+  // ────────────────────────────────────────────
+  describe("Extreme & Validation Edge Cases", () => {
+    it("should throw error if basic salary is negative", () => {
+      expect(() =>
+        calculatePayroll({
+          basicSalary: -1000,
+          absentDays: 0,
+          lateDays: 0,
+          unpaidLeaveDays: 0,
+        })
+      ).toThrow("Basic salary cannot be negative");
+    });
+
+    it("should throw error if present days is negative", () => {
+      expect(() =>
+        calculatePresentDays({
+          present: -1,
+          late: 0,
+          halfDays: 0,
+        })
+      ).toThrow("Attendance inputs cannot be negative");
+    });
+
+    it("should throw error if absent days is negative", () => {
+      expect(() =>
+        calculatePayroll({
+          basicSalary: 5000000,
+          absentDays: -1,
+          lateDays: 0,
+          unpaidLeaveDays: 0,
+        })
+      ).toThrow("Absent days cannot be negative");
+    });
+
+    it("should throw error if late days is negative", () => {
+      expect(() =>
+        calculatePayroll({
+          basicSalary: 5000000,
+          absentDays: 0,
+          lateDays: -1,
+          unpaidLeaveDays: 0,
+        })
+      ).toThrow("Late days cannot be negative");
+    });
+
+    it("should throw error if unpaid leave days is negative", () => {
+      expect(() =>
+        calculatePayroll({
+          basicSalary: 5000000,
+          absentDays: 0,
+          lateDays: 0,
+          unpaidLeaveDays: -1,
+        })
+      ).toThrow("Unpaid leave days cannot be negative");
     });
   });
 });
